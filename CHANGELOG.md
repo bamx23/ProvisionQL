@@ -1,5 +1,9 @@
 # ProvisionQL
 
+## Version 1.5.1
+
+* Adds apps (`.app`) support back
+
 ## Version 1.5.0
 
 * Fixes missing icons for iPad-only apps ([#8](https://github.com/ealeksandrov/ProvisionQL/issues/22))
