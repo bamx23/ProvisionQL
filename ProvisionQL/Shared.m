@@ -43,7 +43,11 @@ int expirationStatus(NSDate *date, NSCalendar *calendar) {
 NSImage *imageFromApp(NSURL *URL, NSString *dataType, NSString *fileName) {
     NSImage *appIcon = nil;
 
-    if ([dataType isEqualToString:kDataType_xcode_archive]) {
+    if([dataType isEqualToString:kDataType_app]) {
+        // get the embedded icon for the iOS app
+        appIcon = [[NSImage alloc] initWithContentsOfURL:[URL URLByAppendingPathComponent:fileName]];
+    }
+    else if ([dataType isEqualToString:kDataType_xcode_archive]) {
         // get the embedded icon for the iOS app
         NSURL *appsDir = [URL URLByAppendingPathComponent:@"Products/Applications/"];
         if (!appsDir) {

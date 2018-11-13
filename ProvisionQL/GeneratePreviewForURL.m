@@ -242,8 +242,14 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         NSData *appPlist = nil;
         NSData *codesignEntitlementsData = nil;
         NSImage *appIcon = nil;
+        if ([dataType isEqualToString:kDataType_app]) {
+            // get the embedded provisioning & plist for the iOS app
+			provisionData = [NSData dataWithContentsOfURL:[URL URLByAppendingPathComponent:@"embedded.mobileprovision"]];
+            appPlist = [NSData dataWithContentsOfURL:[URL URLByAppendingPathComponent:@"Info.plist"]];
 
-        if ([dataType isEqualToString:kDataType_ipa]) {
+            codesignEntitlementsData = codesignEntitlementsDataFromApp(appPlist, URL.path);
+            
+        } else if ([dataType isEqualToString:kDataType_ipa]) {
             // get the embedded provisioning & plist from an app archive using: unzip -u -j -d <currentTempDirFolder> <URL> <files to unzip>
             NSTask *unzipTask = [NSTask new];
 			[unzipTask setLaunchPath:@"/usr/bin/unzip"];
@@ -299,7 +305,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         id value = nil;
         NSString *synthesizedValue = nil;
 
-        if ([dataType isEqualToString:kDataType_ipa]) {
+        if ([dataType isEqualToString:kDataType_ipa] || [dataType isEqualToString:kDataType_app]) {
             [synthesizedInfo setObject:@"App info" forKey:@"AppInfoTitle"];
         } else if ([dataType isEqualToString:kDataType_xcode_archive]) {
             [synthesizedInfo setObject:@"Archive info" forKey:@"AppInfoTitle"];
@@ -308,7 +314,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         if (!provisionData) {
 			NSLog(@"No provisionData for %@", URL);
 
-            if ([dataType isEqualToString:kDataType_ipa] || [dataType isEqualToString:kDataType_xcode_archive]) {
+            if ([dataType isEqualToString:kDataType_ipa]
+                || [dataType isEqualToString:kDataType_app]
+                || [dataType isEqualToString:kDataType_xcode_archive]) {
                 [synthesizedInfo setObject:@"hiddenDiv" forKey:@"ProvisionInfo"];
             } else {
                 return noErr;
@@ -319,7 +327,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
 
         // MARK: App Info
 
-        if ([dataType isEqualToString:kDataType_ipa] || [dataType isEqualToString:kDataType_xcode_archive]) {
+        if ([dataType isEqualToString:kDataType_ipa]
+            || [dataType isEqualToString:kDataType_app]
+            || [dataType isEqualToString:kDataType_xcode_archive]) {
             NSDictionary *appPropertyList = [NSPropertyListSerialization propertyListWithData:appPlist options:0 format:NULL error:NULL];
 
             NSString *bundleName = [appPropertyList objectForKey:@"CFBundleDisplayName"];
@@ -412,7 +422,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview,
         NSData *data = (NSData *)CFBridgingRelease(dataRef);
         CFRelease(decoder);
 
-        if ((!data && !([dataType isEqualToString:kDataType_ipa] || [dataType isEqualToString:kDataType_xcode_archive])) || QLPreviewRequestIsCancelled(preview)) {
+        if ((!data && !([dataType isEqualToString:kDataType_ipa] || [dataType isEqualToString:kDataType_xcode_archive] || [dataType isEqualToString:kDataType_app])) || QLPreviewRequestIsCancelled(preview)) {
             return noErr;
         }
 
