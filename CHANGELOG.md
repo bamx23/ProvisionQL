@@ -1,5 +1,9 @@
 # ProvisionQL
 
+## Version 1.6.0
+
+* Adds dark mode support ([#29](https://github.com/ealeksandrov/ProvisionQL/pull/29))
+
 ## Version 1.5.1
 
 * Adds apps (`.app`) support back
