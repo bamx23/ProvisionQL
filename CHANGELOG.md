@@ -1,5 +1,9 @@
 # ProvisionQL
 
+## Version 1.6.1
+
+* Private release
+
 ## Version 1.6.0
 
 * Adds dark mode support ([#29](https://github.com/ealeksandrov/ProvisionQL/pull/29))
